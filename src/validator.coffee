@@ -29,17 +29,18 @@ validator =
     for key, value of data
       unless data.hasownProperty key then continue
       type    = @config[key]
-      checker = @types[type]
-      
-      unless type then continue
-      unless checker then throw
-        name    : 'ValidationError'
-        message : "No handler to validate type #{type}"
+      unless types then continue
+      unless types instanceof Array then types = [types]
+      for type in types
+        checker = @types[type]
+        unless checker then throw
+          name    : 'ValidationError'
+          message : "No handler to validate type #{type}"
 
-      result = checker.validate data[key]
-      unless result
-        msg = "Invalid value for *#{key}*, #{checker.instructions}"
-        @messages.push msg
+        result = checker.validate data[key]
+        unless result
+          msg = "Invalid value for *#{key}*, #{checker.instructions}"
+          @messages.push msg
 
     return @hasErrors()
 

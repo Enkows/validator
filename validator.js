@@ -5,7 +5,8 @@ validator = {
   messages: [],
   config: {},
   validate: function(data) {
-    var checker, key, msg, result, type, value;
+    var checker, key, msg, result, type, types, value, _i, _len;
+
     this.messages = [];
     for (key in data) {
       value = data[key];
@@ -13,22 +14,28 @@ validator = {
         continue;
       }
       type = this.config[key];
-      checker = this.types[type];
-      if (!type) {
+      if (!types) {
         continue;
       }
-      if (!checker) {
-        throw {
-          name: 'ValidationError'
-        };
+      if (!(types instanceof Array)) {
+        types = [types];
       }
-      ({
-        message: "No handler to validate type " + type
-      });
-      result = checker.validate(data[key]);
-      if (!result) {
-        msg = "Invalid value for *" + key + "*, " + checker.instructions;
-        this.messages.push(msg);
+      for (_i = 0, _len = types.length; _i < _len; _i++) {
+        type = types[_i];
+        checker = this.types[type];
+        if (!checker) {
+          throw {
+            name: 'ValidationError'
+          };
+        }
+        ({
+          message: "No handler to validate type " + type
+        });
+        result = checker.validate(data[key]);
+        if (!result) {
+          msg = "Invalid value for *" + key + "*, " + checker.instructions;
+          this.messages.push(msg);
+        }
       }
     }
     return this.hasErrors();
